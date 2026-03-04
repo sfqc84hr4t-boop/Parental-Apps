@@ -1,0 +1,64 @@
+-- ============================================================
+-- Kindroots — Demo Account Data
+-- Note: Run AFTER creating the demo user via Supabase Auth UI or CLI
+-- Email: demo@kindroots.app / Password: Demo1234!
+-- ============================================================
+
+-- This script is designed to be run AFTER the demo user is created.
+-- Replace 'DEMO_USER_UUID' with the actual UUID from auth.users.
+
+-- Example usage:
+-- 1. Create user via: supabase auth user create --email demo@kindroots.app --password Demo1234!
+-- 2. Get UUID: supabase auth list-users
+-- 3. Run this script with the UUID replaced
+
+-- For CI/demo environments, uncomment and fill in:
+-- DO $$
+-- DECLARE
+--   demo_user_id UUID := 'DEMO_USER_UUID';
+--   demo_family_id UUID;
+--   demo_baby_id UUID;
+-- BEGIN
+--   -- Profile
+--   INSERT INTO profiles (id, full_name, subscription_tier, onboarding_completed)
+--   VALUES (demo_user_id, 'Sarah', 'premium', true)
+--   ON CONFLICT (id) DO UPDATE SET full_name = 'Sarah', subscription_tier = 'premium', onboarding_completed = true;
+--
+--   -- Family
+--   INSERT INTO families (owner_id, partner_name, stage, frameworks)
+--   VALUES (demo_user_id, 'James', 'infant', ARRAY['wonder-weeks', 'gentle-sleep'])
+--   RETURNING id INTO demo_family_id;
+--
+--   -- Baby (Mia, 9 weeks old)
+--   INSERT INTO babies (family_id, name, date_of_birth, feeding_method, premature)
+--   VALUES (demo_family_id, 'Mia', CURRENT_DATE - INTERVAL '63 days', 'combination', false)
+--   RETURNING id INTO demo_baby_id;
+--
+--   -- Daily logs (last 3 days)
+--   INSERT INTO daily_logs (baby_id, logged_at, log_type, feed_type, feed_duration_minutes)
+--   VALUES
+--     (demo_baby_id, NOW() - INTERVAL '2 hours', 'feed', 'breast_left', 15),
+--     (demo_baby_id, NOW() - INTERVAL '4 hours', 'sleep', null, null),
+--     (demo_baby_id, NOW() - INTERVAL '6 hours', 'feed', 'bottle', null),
+--     (demo_baby_id, NOW() - INTERVAL '1 day', 'nappy', null, null),
+--     (demo_baby_id, NOW() - INTERVAL '1 day 3 hours', 'feed', 'breast_right', 12);
+--
+--   -- Kira conversation
+--   INSERT INTO kira_messages (family_id, role, content)
+--   VALUES
+--     (demo_family_id, 'user', 'Mia is being really fussy tonight and won''t settle. Is this normal for 9 weeks?'),
+--     (demo_family_id, 'assistant', 'Hi Sarah! Oh, I completely understand how exhausting this feels, especially in the evenings. At 9 weeks, Mia is right in the middle of Wonder Week 8 (Leap 2) — and this stormy period is famous for exactly this: fussiness, clinginess, and refusing to settle, especially in the evenings. It''s called the ''witching hour'' and it''s completely normal, even though it feels anything but! Try the 5 S''s: swaddle Mia snugly, hold her on her side or stomach (supervised), shush loudly near her ear, add a swinging motion, and offer a dummy if she''ll take one. All five together is the magic combination. Is James home to help tonight? Even taking Mia for 20 minutes while you breathe can make a huge difference. 💛');
+--
+--   -- Achieved milestones (5 passed)
+--   INSERT INTO baby_milestones (baby_id, milestone_id, achieved_at)
+--   SELECT demo_baby_id, id, CURRENT_DATE - INTERVAL '2 weeks'
+--   FROM milestone_definitions
+--   WHERE title IN (
+--     'Lifts head briefly during tummy time',
+--     'Responds to your voice',
+--     'Makes eye contact',
+--     'First real smile',
+--     'Follows moving objects'
+--   )
+--   LIMIT 5;
+-- END $$;
