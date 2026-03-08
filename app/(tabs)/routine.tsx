@@ -8,7 +8,6 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuthStore } from "@/stores/authStore";
 import { useFamilyStore } from "@/stores/familyStore";
 import { supabase } from "@/lib/supabase";
 import { GeneratedRoutine, GeneratedRoutineEvent, Routine, RoutineStep } from "@/lib/types";
@@ -20,7 +19,6 @@ import {
 } from "@/lib/helpers";
 
 export default function RoutineScreen() {
-  const { profile } = useAuthStore();
   const { family, baby, familyContext } = useFamilyStore();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generated, setGenerated] = useState<GeneratedRoutine | null>(null);
@@ -28,8 +26,6 @@ export default function RoutineScreen() {
   const [activeRoutine, setActiveRoutine] = useState<Routine | null>(null);
   const [steps, setSteps] = useState<RoutineStep[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const isPremium = profile?.subscription_tier === "premium";
-
   useEffect(() => {
     loadSavedRoutines();
   }, [family]);
@@ -87,16 +83,7 @@ export default function RoutineScreen() {
   };
 
   const saveGeneratedRoutine = async () => {
-    if (!generated || !family || !isPremium) {
-      if (!isPremium) {
-        Alert.alert(
-          "Kindroots+ feature",
-          "Upgrade to save and customise routines.",
-          [{ text: "OK" }]
-        );
-      }
-      return;
-    }
+    if (!generated || !family) return;
 
     const { data: routine } = await supabase
       .from("routines")
@@ -212,7 +199,7 @@ export default function RoutineScreen() {
                   className="text-terracotta text-base"
                   style={{ fontFamily: "Nunito_700Bold" }}
                 >
-                  {isPremium ? "Save this routine" : "🔒 Save (Kindroots+ only)"}
+                  Save this routine
                 </Text>
               </TouchableOpacity>
             </View>
@@ -273,17 +260,6 @@ export default function RoutineScreen() {
             </View>
           )}
 
-          {/* Freemium note */}
-          {!isPremium && (
-            <View className="mt-4 bg-card-blush rounded-2xl p-4 border border-border-soft">
-              <Text
-                className="text-text-secondary text-sm"
-                style={{ fontFamily: "Nunito_600SemiBold" }}
-              >
-                🔒 Kindroots+ includes unlimited saved routines, custom scheduling, and multi-routine support.
-              </Text>
-            </View>
-          )}
         </View>
       </ScrollView>
     </SafeAreaView>

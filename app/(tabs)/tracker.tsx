@@ -8,7 +8,6 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuthStore } from "@/stores/authStore";
 import { useFamilyStore } from "@/stores/familyStore";
 import { supabase } from "@/lib/supabase";
 import {
@@ -40,13 +39,11 @@ const CATEGORY_ICONS: Record<string, string> = {
 
 export default function TrackerScreen() {
   const router = useRouter();
-  const { profile } = useAuthStore();
   const { baby, leaps } = useFamilyStore();
   const [milestones, setMilestones] = useState<MilestoneDefinition[]>([]);
   const [achieved, setAchieved] = useState<BabyMilestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"milestones" | "leaps">("milestones");
-  const isPremium = profile?.subscription_tier === "premium";
 
   const ageWeeks = baby?.date_of_birth ? getBabyAgeWeeks(baby) : 0;
   const currentLeap = getCurrentLeap(ageWeeks, leaps);
@@ -277,7 +274,6 @@ export default function TrackerScreen() {
             {leaps.map((leap) => {
               const isCurrent = currentLeap?.id === leap.id;
               const isPast = ageWeeks > leap.age_weeks_end + 1;
-              const isLocked = !isPremium && leap.leap_number > 3;
 
               return (
                 <View
@@ -310,11 +306,6 @@ export default function TrackerScreen() {
                         </Text>
                       </View>
                     )}
-                    {isLocked && (
-                      <View className="ml-auto">
-                        <Text className="text-text-muted" style={{ fontSize: 16 }}>🔒</Text>
-                      </View>
-                    )}
                   </View>
                   <Text
                     className="text-text-primary text-base"
@@ -322,30 +313,29 @@ export default function TrackerScreen() {
                   >
                     {leap.name}
                   </Text>
-                  {!isLocked && (
-                    <>
-                      {isCurrent && leap.stormy_description && (
-                        <Text
-                          className="text-text-secondary text-sm mt-2"
-                          style={{ fontFamily: "Nunito_400Regular" }}
-                        >
-                          {leap.stormy_description}
-                        </Text>
-                      )}
-                      {!isCurrent && leap.sunny_description && (
-                        <Text
-                          className="text-text-secondary text-sm mt-2"
-                          style={{ fontFamily: "Nunito_400Regular" }}
-                        >
-                          {isPast ? leap.sunny_description : `Coming around week ${leap.age_weeks_start}`}
-                        </Text>
-                      )}
-                      {leap.new_skills && leap.new_skills.length > 0 && (
-                        <View className="mt-3 gap-y-1">
-                          {leap.new_skills.slice(0, 3).map((skill, i) => (
-                            <View key={i} className="flex-row items-center gap-x-2">
-                              <View className="w-1.5 h-1.5 rounded-full bg-terracotta" />
-                              <Text
+                  <>
+                    {isCurrent && leap.stormy_description && (
+                      <Text
+                        className="text-text-secondary text-sm mt-2"
+                        style={{ fontFamily: "Nunito_400Regular" }}
+                      >
+                        {leap.stormy_description}
+                      </Text>
+                    )}
+                    {!isCurrent && leap.sunny_description && (
+                      <Text
+                        className="text-text-secondary text-sm mt-2"
+                        style={{ fontFamily: "Nunito_400Regular" }}
+                      >
+                        {isPast ? leap.sunny_description : `Coming around week ${leap.age_weeks_start}`}
+                      </Text>
+                    )}
+                    {leap.new_skills && leap.new_skills.length > 0 && (
+                      <View className="mt-3 gap-y-1">
+                        {leap.new_skills.slice(0, 3).map((skill, i) => (
+                          <View key={i} className="flex-row items-center gap-x-2">
+                            <View className="w-1.5 h-1.5 rounded-full bg-terracotta" />
+                            <Text
                                 className="text-text-secondary text-xs"
                                 style={{ fontFamily: "Nunito_400Regular" }}
                               >
@@ -355,16 +345,7 @@ export default function TrackerScreen() {
                           ))}
                         </View>
                       )}
-                    </>
-                  )}
-                  {isLocked && (
-                    <Text
-                      className="text-text-muted text-sm mt-2"
-                      style={{ fontFamily: "Nunito_400Regular" }}
-                    >
-                      Upgrade to Kindroots+ to unlock all 10 Wonder Week leaps.
-                    </Text>
-                  )}
+                  </>
                 </View>
               );
             })}

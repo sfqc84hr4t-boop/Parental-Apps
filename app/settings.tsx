@@ -61,82 +61,21 @@ function SettingsRow({
   );
 }
 
-// ─── Paywall Modal ────────────────────────────────────────────────
+// ─── Demo banner (replaces paywall) ──────────────────────────────
 function PaywallCard() {
-  const { profile } = useAuthStore();
-  const isPremium = profile?.subscription_tier === "premium";
-
-  if (isPremium) {
-    return (
-      <View className="mx-5 mt-4 bg-mint-light rounded-3xl p-5 border border-sage-light">
-        <View className="flex-row items-center gap-x-3">
-          <Text style={{ fontSize: 28 }}>✨</Text>
-          <View>
-            <Text className="text-text-primary text-base" style={{ fontFamily: "Nunito_700Bold" }}>
-              Kindroots+ Active
-            </Text>
-            <Text className="text-sage text-sm" style={{ fontFamily: "Nunito_600SemiBold" }}>
-              All features unlocked
-            </Text>
-          </View>
+  return (
+    <View className="mx-5 mt-4 bg-mint-light rounded-3xl p-5 border border-sage-light">
+      <View className="flex-row items-center gap-x-3">
+        <Text style={{ fontSize: 28 }}>✨</Text>
+        <View className="flex-1">
+          <Text className="text-text-primary text-base" style={{ fontFamily: "Nunito_700Bold" }}>
+            Demo mode — all features unlocked
+          </Text>
+          <Text className="text-sage text-sm mt-0.5" style={{ fontFamily: "Nunito_400Regular" }}>
+            Kindroots+ subscription coming soon
+          </Text>
         </View>
       </View>
-    );
-  }
-
-  return (
-    <View className="mx-5 mt-4 bg-card-blush rounded-3xl p-5 border border-border-soft">
-      <Text style={{ fontSize: 32 }}>🌱</Text>
-      <Text
-        className="text-text-primary text-xl mt-3"
-        style={{ fontFamily: "Nunito_800ExtraBold" }}
-      >
-        Kindroots+
-      </Text>
-      <Text
-        className="text-text-secondary text-sm mt-2"
-        style={{ fontFamily: "Nunito_400Regular", lineHeight: 20 }}
-      >
-        Everything your family needs, unlocked.
-      </Text>
-
-      <View className="mt-4 gap-y-2">
-        {[
-          "Unlimited Kira conversations",
-          "Full guide library for every stage",
-          "Save and customise routines",
-          "All 10 Wonder Week leaps",
-          "Growth charts & photo milestone memories",
-          "Partner mode & shared family profile",
-        ].map((benefit) => (
-          <View key={benefit} className="flex-row items-center gap-x-2">
-            <Text className="text-terracotta">✓</Text>
-            <Text className="text-text-secondary text-sm" style={{ fontFamily: "Nunito_600SemiBold" }}>
-              {benefit}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      <TouchableOpacity
-        className="mt-5 bg-terracotta rounded-2xl py-4 items-center"
-        style={{ shadowColor: "#E07A5F", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }}
-        onPress={() => Alert.alert("Coming soon", "Stripe payment integration is ready — connect your Stripe keys to activate.")}
-      >
-        <Text className="text-white text-base" style={{ fontFamily: "Nunito_700Bold" }}>
-          Start 7-day free trial
-        </Text>
-        <Text className="text-white/80 text-xs mt-0.5" style={{ fontFamily: "Nunito_400Regular" }}>
-          Then £8.99/month or £59.99/year
-        </Text>
-      </TouchableOpacity>
-
-      <Text
-        className="text-text-muted text-xs text-center mt-3"
-        style={{ fontFamily: "Nunito_400Regular" }}
-      >
-        Cancel anytime. No commitment.
-      </Text>
     </View>
   );
 }

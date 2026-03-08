@@ -12,13 +12,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams } from "expo-router";
-import { useAuthStore } from "@/stores/authStore";
 import { useFamilyStore } from "@/stores/familyStore";
 import { useKiraStore } from "@/stores/kiraStore";
 import { KiraMessage } from "@/lib/types";
 import { getBabyAgeLabel, getBabyAgeWeeks, getCurrentLeap } from "@/lib/helpers";
-
-const FREE_LIMIT = 10;
 
 const QUICK_REPLIES = [
   "Why is baby crying?",
@@ -76,15 +73,13 @@ function TypingIndicator() {
 
 export default function KiraScreen() {
   const params = useLocalSearchParams<{ mode?: string }>();
-  const { profile } = useAuthStore();
   const { family, baby, leaps, familyContext } = useFamilyStore();
-  const { messages, isTyping, sendMessage, fetchMessages, dailyMessageCount } = useKiraStore();
+  const { messages, isTyping, sendMessage, fetchMessages } = useKiraStore();
   const [input, setInput] = useState(
     params.mode === "normal" ? "Is this normal? " : ""
   );
   const [isLoading, setIsLoading] = useState(true);
   const flatListRef = useRef<FlatList>(null);
-  const isPremium = profile?.subscription_tier === "premium";
 
   useEffect(() => {
     if (family) {
@@ -100,10 +95,7 @@ export default function KiraScreen() {
     }
   }, [messages, isTyping]);
 
-  const canSend =
-    input.trim().length > 0 &&
-    !isTyping &&
-    (isPremium || dailyMessageCount < FREE_LIMIT);
+  const canSend = input.trim().length > 0 && !isTyping;
 
   const handleSend = async () => {
     if (!canSend || !family || !familyContext) return;
@@ -165,16 +157,6 @@ export default function KiraScreen() {
                 {currentLeap ? ` · WW${currentLeap.leap_number} 🌩` : ""}
               </Text>
             </View>
-            {!isPremium && (
-              <View className="bg-card-warm rounded-full px-3 py-1 border border-border-soft">
-                <Text
-                  className="text-text-muted text-xs"
-                  style={{ fontFamily: "Nunito_600SemiBold" }}
-                >
-                  {Math.max(0, FREE_LIMIT - dailyMessageCount)} left today
-                </Text>
-              </View>
-            )}
           </View>
         </View>
 
@@ -226,24 +208,6 @@ export default function KiraScreen() {
               ))}
             </View>
           </ScrollView>
-        )}
-
-        {/* ── Limit reached ── */}
-        {!isPremium && dailyMessageCount >= FREE_LIMIT && (
-          <View className="mx-5 mb-3 bg-card-blush rounded-2xl p-4 border border-border-soft">
-            <Text
-              className="text-text-primary text-sm text-center"
-              style={{ fontFamily: "Nunito_700Bold" }}
-            >
-              You've used your 10 daily messages 💛
-            </Text>
-            <Text
-              className="text-text-muted text-xs text-center mt-1"
-              style={{ fontFamily: "Nunito_400Regular" }}
-            >
-              Upgrade to Kindroots+ for unlimited Kira conversations.
-            </Text>
-          </View>
         )}
 
         {/* ── Input ── */}

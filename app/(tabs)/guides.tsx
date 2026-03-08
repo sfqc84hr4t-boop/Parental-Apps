@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { useAuthStore } from "@/stores/authStore";
 import { useFamilyStore } from "@/stores/familyStore";
 import { supabase } from "@/lib/supabase";
 import { LibraryArticle } from "@/lib/types";
@@ -28,14 +27,11 @@ const CATEGORY_COLOURS: Record<string, string> = {
 
 function ArticleCard({
   article,
-  isPremium,
   onPress,
 }: {
   article: LibraryArticle;
-  isPremium: boolean;
   onPress: () => void;
 }) {
-  const isLocked = article.is_premium && !isPremium;
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -63,10 +59,10 @@ function ArticleCard({
             )}
           </View>
           <Text
-            className={`text-base ${isLocked ? "text-text-muted" : "text-text-primary"}`}
+            className="text-base text-text-primary"
             style={{ fontFamily: "Nunito_700Bold" }}
           >
-            {isLocked ? "🔒 " : ""}{article.title}
+            {article.title}
           </Text>
           {article.summary && (
             <Text
@@ -135,13 +131,11 @@ function ProductCard({ product }: { product: typeof AFFILIATE_PRODUCTS[0] }) {
 
 export default function GuidesScreen() {
   const router = useRouter();
-  const { profile } = useAuthStore();
   const { family, baby } = useFamilyStore();
   const [articles, setArticles] = useState<LibraryArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
-  const isPremium = profile?.subscription_tier === "premium";
 
   const ageWeeks = baby?.date_of_birth ? getBabyAgeWeeks(baby) : 0;
 
@@ -275,11 +269,7 @@ export default function GuidesScreen() {
               <ArticleCard
                 key={article.id}
                 article={article}
-                isPremium={isPremium}
-                onPress={() => {
-                  // In a full implementation, navigate to article detail
-                  // For now, show a placeholder
-                }}
+                onPress={() => {}}
               />
             ))
           )}
@@ -314,29 +304,6 @@ export default function GuidesScreen() {
           </View>
         )}
 
-        {/* Freemium upsell */}
-        {!isPremium && (
-          <View className="mx-5 mt-6 bg-card-blush rounded-3xl p-5 border border-border-soft">
-            <Text style={{ fontSize: 24 }}>🔓</Text>
-            <Text
-              className="text-text-primary text-base mt-2"
-              style={{ fontFamily: "Nunito_700Bold" }}
-            >
-              Unlock the full library
-            </Text>
-            <Text
-              className="text-text-secondary text-sm mt-1"
-              style={{ fontFamily: "Nunito_400Regular" }}
-            >
-              Kindroots+ gives you access to every guide, for every stage and framework.
-            </Text>
-            <TouchableOpacity className="mt-4 bg-terracotta rounded-2xl py-3 items-center">
-              <Text className="text-white text-sm" style={{ fontFamily: "Nunito_700Bold" }}>
-                Start 7-day free trial
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </ScrollView>
     </SafeAreaView>
   );
